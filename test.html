@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+<script>
+    
+
+function nomalDiceRoller(inputStr){
+
+  //先定義要輸出的Str
+  let finalStr = '' ;
+ //首先判斷是否是誤啟動（檢查是否有符合骰子格式）
+  if (inputStr.toLowerCase().match(/\d+d\d+/) == null) return undefined;
+
+  //再來先把第一個分段拆出來，待會判斷是否是複數擲骰
+  let mutiOrNot = inputStr.toLowerCase().match(/\S+/);
+  console.log(mutiOrNot[0])
+  console.log(typeof mutiOrNot[0])
+  //排除小數點
+  if (mutiOrNot.toString().match(/\./)!=null)return undefined;
+
+  if(mutiOrNot.toString().match(/\D/)==null )  {
+    finalStr= '複數擲骰：'
+    if(mutiOrNot>20) return '不支援20次以上的複數擲骰。';
+
+    for (i=1 ; i<=mutiOrNot ;i++){
+      let DiceToRoll = inputStr.toLowerCase().split(' ',2)[1];
+      if (DiceToRoll.match('d') == null) return undefined;
+      finalStr = finalStr +'\n' + i + '# ' + DiceCal(DiceToRoll);
+    }
+    if(finalStr.match('200D')!= null) finalStr = '為什麼會需要丟到200次以上呢，明日香不明白。';
+    if(finalStr.match('D500')!= null) finalStr = '我不會D1跟D500以上的數字呢，而且為什麼會用到這麼大的骰子呢';
+
+  }
+
+  else finalStr= '基本擲骰：' + DiceCal(mutiOrNot.toString());
+
+  if (finalStr.match('NaN')!= null||finalStr.match('undefined')!= null) return undefined;
+  return finalStr;
+}
+
+//作計算的函數
+function DiceCal(inputStr){
+    console.log("DiceCal: " + inputStr)
+  //首先判斷是否是誤啟動（檢查是否有符合骰子格式）
+  if (inputStr.toLowerCase().match(/\d+d\d+/) == null) return undefined;
+  
+  //排除小數點
+  if (inputStr.toString().match(/\./)!=null)return undefined;
+
+  //先定義要輸出的Str
+  let finalStr = '' ;
+
+  //一般單次擲骰
+  let DiceToRoll = inputStr.toString().toLowerCase();
+  if (DiceToRoll.match('d') == null) return undefined;
+
+  //寫出算式
+  let equation = DiceToRoll;
+  while(equation.match(/\d+d\d+/)!=null) {
+    let tempMatch = equation.match(/\d+d\d+/);
+    if(tempMatch.toString().split('d')[1]==0)return "沒有0面骰這種東西啦，笨笨主人。";
+    if (tempMatch.toString().split('d')[0]>200) return '為什麼會需要丟到200次以上呢，明日香不明白。';
+    if (tempMatch.toString().split('d')[1]==1 || tempMatch.toString().split('d')[1]>500) return '我不會D1跟D500以上的數字呢，而且為什麼會用到這麼大的骰子呢';
+    equation = equation.replace(/\d+d\d+/, RollDice(tempMatch));
+  }
+
+  //計算算式
+  let answer = eval(equation.toString());
+    finalStr= equation + ' = ' + answer;
+  console.log(answer)
+  console.log(equation)
+  return finalStr;
+
+
+}
+
+function Dice(diceSided){
+          return Math.floor((Math.random() * diceSided) + 1)
+        }
+
+//用來把d給展開成算式的函數
+function RollDice(inputStr){
+  //先把inputStr變成字串（不知道為什麼非這樣不可）
+  let comStr=inputStr.toString().toLowerCase();
+  let finalStr = '(';
+
+  for (let i = 1; i <= comStr.split('d')[0]; i++) {
+    finalStr = finalStr + Dice(comStr.split('d')[1]) + '+';
+     }
+
+  finalStr = finalStr.substring(0, finalStr.length - 1) + ')';
+  return finalStr;
+}
+
+//console.log(nomalDiceRoller("2d2d2"))
+
+//for (let i = 0; i < "3"; i = i + 1) {
+//console.log(i)
+//}
+
+let getDiceSet = function(diceSetStr) {
+    //let diceSetStr.match(/(\d+d\d+)([\+\-\*\/]?)*/ig)
+    let result = diceSetStr.split(/([\+\-\*\/])/);
+    let diceSet = {
+        operator: [],
+        dice:[]
+    }
+    for (let i = 0; i< result.length; i += 1) {
+        if (i % 2 === 0) {
+            diceSet["dice"].push(result[i])
+        } else {
+            diceSet["operator"].push(result[i])
+        }
+    }
+    console.log(diceSet)
+    return diceSet;
+}
+
+let validateDiceSet = function(diceSet) {
+    let result = {
+        isValid: true,
+        msg: "ok"
+    };
+    
+    if ( !(Array.isArray(diceSet.operator) && Array.isArray(diceSet.dice)) ) {
+        result.isValid = false;
+        result.msg = "诶，怎麼會跑來這裡，明日香不明白，拜託把問題告訴維維。";
+        return result;
+    }
+
+    let len = diceSet["dice"].length;
+    for (let i = 0; i < len; i += 1) {
+        let diceStr = diceSet["dice"][i]
+        //invalid input dice string
+        if (diceStr.match(/\d+d\d+[hlo]?\d*/)[0] !== diceStr) {
+            result.isValid = false;
+            result.msg = "請不要輸入四則運算以外的運算元。";
+            console.log(result.msg)
+            return result;
+        }
+        let diceStrParseResult = diceStr.match(/(\d+)d(\d+)([hlo]?)(\d*)/);
+        console.log(diceStrParseResult)
+        let rollTimes = toString(diceStrParseResult[1]);
+        let dice = toString(diceStrParseResult[2]);
+        let selectTimes = toString(diceStrParseResult[4]);
+        
+        if(dice === 0){
+        
+        } else if ()
+        
+    }
+    return result;
+}
+// For normal dice 
+let rollBasicDice = function (commandStr) {
+    // Get the first part of command
+    let firstPart = commandStr.match(/\S+/)[0];
+
+    // filter the fraction
+    if (firstPart.match(/\./)!=null){
+        return undefined;
+    }
+
+    let replyString = ""
+    // check the multiple dice roll or not
+    if (firstPart.match(/\D/) == null) {
+        // multiple dice roll
+        let rollingTimes = parseInt(firstPart)
+        if (rollingTimes > 20) {
+            return "20次以上的複數擲骰對明日香來說太多了啦。"
+        }
+        let diceSet = inputStr.toLowerCase().split(' ',2)[1];
+        
+        replyString += "複數擲骰：";
+        for (let i = 0; i < rollingTimes; i += 1 ) {
+            replyString = replyString + "\n" + i + "# " + getRollingDiceSetString(diceSet)
+        }
+    } else {
+        //Basic dice roll
+        diceSet = firstPart;
+        replyString += "基本擲骰：" + getRollingDiceSetString(diceSet)
+    }
+
+}
+
+//validateDiceSetString("2d3+7d5-3d67*20d3")
+//rollBasicDice("2d3+7d5-3d67*20d3")
+//let test = getDiceSet("2d3+7d5-3d67*20d3^15d3")
+let test = getDiceSet("2d3o+3d6h2+5d7l3+3d9+3d6c2")
+validateDiceSet(test)
+</script>
+</head>
+<body>
+ 
+
+ 
+</body>
+</html>
