@@ -1,4 +1,8 @@
 'use strict';
+let assert = require("assert");
+
+  
+
 // dice content data
 var kanColleDiceData = {
     act: {
@@ -77,6 +81,60 @@ var kanColleDiceData = {
         diceNumber:0
     },
 }
+
+function tokenize(code) {
+    let results = [];
+    let tokenRegExp = /\s*([A-Za-z]+|[0-9]+|\S)/g;
+    let match;
+    while ((match = tokenRegExp.exec(code)) !== null) {
+        results.push(m[1])
+    }
+    return results;
+}
+
+function isNumber(token) {
+    return token !== undefined && token.match(/^[0-9]+$/) !==null;
+}
+
+function isNumber(token) {
+    return token !== undefined && token.match(/^[A-Za-z]+$/) !== null;
+}
+
+function parse(code) {
+    let tokens = tokenize(code);
+    let position = 0;
+
+    function peek() {
+        return tokens[position];
+    }
+
+    function consume(token) {
+        assert.strictEqual(token, token[position]);
+        position++;
+    }
+
+    function parsePrimaryExpr() {
+        let t = peek;
+        if (isNumber(t)) {
+            consume(t);
+            return {type: "number", value: t};
+        } else if (isName(t)) {
+            consume(t);
+            return {type: "name", value: t};
+        } else if (t === "(") {
+            consume(t);
+            let expr = parseExpr();
+            if (peek() !== ")") {
+                throw new SyntaxError("expect )");
+            }
+            consume(")");
+            return expr;
+        } else {
+            throw new SyntaxError("expected a number, a variable, or parentheses");
+        }
+    }
+}
+
 
 
 // export object constructor

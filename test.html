@@ -144,9 +144,9 @@ let validateDiceSet = function(diceSet) {
         let dice = toString(diceStrParseResult[2]);
         let selectTimes = toString(diceStrParseResult[4]);
         
-        if(dice === 0){
+        // if(dice === 0){
         
-        } else if ()
+        // } else if ()
         
     }
     return result;
@@ -186,8 +186,48 @@ let rollBasicDice = function (commandStr) {
 //validateDiceSetString("2d3+7d5-3d67*20d3")
 //rollBasicDice("2d3+7d5-3d67*20d3")
 //let test = getDiceSet("2d3+7d5-3d67*20d3^15d3")
-let test = getDiceSet("2d3o+3d6h2+5d7l3+3d9+3d6c2")
-validateDiceSet(test)
+// let test = getDiceSet("2d3o+3d6h2+5d7l3+3d9+3d6c2")
+// validateDiceSet(test)
+
+function tokenize(code) {
+    let results = [];
+    let tokenRegExp = /\s*([A-Za-z]+|[0-9]+|\S)/g;
+    let match;
+    while ((match = tokenRegExp.exec(code)) !== null) {
+        results.push(match[1])
+    }
+    return results;
+}
+
+function isNumber(token) {
+    return token !== undefined && token.match(/^[0-9]+$/) !==null;
+}
+
+function isNumber(token) {
+    return token !== undefined && token.match(/^[A-Za-z]+$/) !== null;
+}
+
+function parse(code) {
+    let tokens = tokenize(code);
+    let position = 0;
+
+    function peek() {
+        return tokens[position];
+    }
+
+    function consume(token) {
+        
+    }
+}
+
+
+console.log(tokenize("2+2"))
+console.log(tokenize("(3+2 ) +9"))
+console.log(tokenize("3d6+9"))
+console.log(tokenize("20d6+5d6"))
+console.log(tokenize("(3d6)*1d3+2"))
+console.log(tokenize("aaa+fff"))
+
 </script>
 </head>
 <body>
