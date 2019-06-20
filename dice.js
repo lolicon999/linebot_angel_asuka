@@ -90,7 +90,6 @@ function tokenize(code) {
     return results;
 }
 
-
 function isNumber(token) {
     return token !== undefined && token.match(/^[0-9]+$/) !==null;
 }
@@ -124,7 +123,7 @@ function parse(code) {
             return {type: "number", value: t};
         } else if (isName(t)) {
             consume(t);
-            return {type: "name", value: t};
+            return {type: "name", id: t};
         } else if (isDice(t)) {
             consume(t);
             return {type: "dice", value: t};
@@ -171,44 +170,181 @@ function parse(code) {
     }
     return result;
 }
+function rollDice(diceStr) {
+    let diceReg = /(\d+)d(\d+)([lho]?)(\d*)/;
+    let match = diceReg.exec(diceStr);
+    let diceNumber = parseInt(match[1]);
+    let diceType = parseInt(match[2]);
+    let selectMode = match[3];
+    let selectNumber = parseInt(match[4]);
+
+    if ( diceType === 0) {
+        console.log("here1");
+        throw "笨笨主人";
+    } else if (diceNumber > 200) {
+        console.log("here2");
+        throw "笨笨主人2";
+    } else if (diceType > 500) {
+        console.log("here3");
+        throw "笨笨主人3";
+    } else if (diceType === 1 ) {
+        console.log("here4");
+        throw "笨笨主人4";
+    } else if (selectNumber > diceNumber) {
+        console.log("here5");
+        throw "笨笨主人5";
+    }
+    let result = {
+        replyStr: "",
+        value: 0
+    };
+    let resultList = [];
+    for (let i = 0; i < diceNumber; i += 1) {
+        resultList.push(Math.floor((Math.random() * diceType) + 1))
+    }
+    result.replyStr = "[" + resultList.join(",") + "]"
+
+    if (selectMode !== "") {
+        resultList.sort((a, b) => {
+            return a - b
+        });
+        let deleteTimes = diceNumber - selectNumber;
+        switch (selectMode) {
+            
+            case "h":
+                for (let i = 0; i < deleteTimes; i += 1) {
+                    resultList.shift();
+                }
+                break;
+            case "l":
+                for (let i = 0; i < deleteTimes; i += 1) {
+                    resultList.pop();
+                }
+                break;
+            case "o":
+                resultList.pop();
+                resultList.shift();
+                break;
+        }
+    }
+    result.value = resultList.reduce((a, b) => {
+        return a + b;
+    });
+    result.replyStr = result.value.toString() + result.replyStr
+    return result;
+}
+
+
 
 function evaluate(obj) {
+    let result = {
+        replyStr: "",
+        value: 0
+    };
+    let leftResult, rightResult;
     switch (obj.type) {
-    case "number":  return parseInt(obj.value);
+    case "number":
+        result.replyStr = obj.value;
+        result.value = parseInt(obj.value)
+        return result;
     case "name":  return variables[obj.id] || 0;
-    case "+":  return evaluate(obj.left) + evaluate(obj.right);
-    case "-":  return evaluate(obj.left) - evaluate(obj.right);
-    case "*":  return evaluate(obj.left) * evaluate(obj.right);
-    case "/":  return evaluate(obj.left) / evaluate(obj.right);
+    case "dice":
+        return rollDice(obj.value);
+    case "+":
+        leftResult = evaluate(obj.left);
+        rightResult = evaluate(obj. right);
+        result.replyStr = "(" + leftResult.replyStr + "+" +  rightResult.replyStr + ")";
+        result.value = leftResult.value + rightResult.value;
+        return result;
+    case "-":
+        leftResult = evaluate(obj.left);
+        rightResult = evaluate(obj. right);
+        result.replyStr = "(" + leftResult.replyStr + "-" +  rightResult.replyStr + ")";
+        result.value = leftResult.value - rightResult.value;
+        return result;
+    case "*":
+        leftResult = evaluate(obj.left);
+        rightResult = evaluate(obj. right);
+        result.replyStr = "(" + leftResult.replyStr + "*" +  rightResult.replyStr + ")";
+        result.value = leftResult.value * rightResult.value;
+        return result;
+    case "/":
+        leftResult = evaluate(obj.left);
+        rightResult = evaluate(obj. right);
+        result.replyStr = "(" + leftResult.replyStr + "/" +  rightResult.replyStr + ")";
+        result.value = leftResult.value / rightResult.value;
+        return result;
     }
 }
 
-console.log(parse("2d6+3 + 7d6"))
+// try {
+//     console.log(evaluate(parse("(2*5)d8+5")));
+// } catch (e) {
+//     console.log(e)
+// }
 
 
-// console.log(evaluate(parse("2 + 2")));
-// console.log(evaluate(parse("3 * 4 * 5")));
-// console.log(evaluate(parse("5 * (2 +2)")));
-
-// export object constructor
 var DiceRoller = function () {
-    let getRollingDiceSetString = function(diceSet) {
 
-    }
-    let validateDiceSetString = function(diceSet) {
+    // For normal dice
         
-    }
-    // For normal dice 
+    let evaluateDiceSet  = function(diceSet) {
+        let compareRegExp = /(>=|<=|={1,2}|>|<)/;
+        let splitedDice = diceSet.split(compareRegExp);
+        if (splitedDice.length == 3) {
+            let leftRet = evaluate(parse(splitedDice[0]));
+            let rightRet = evaluate(parse(splitedDice[2]));
+            let isSeuccess = "失敗";
+            switch(splitedDice[1]) {
+                case "<=":
+                    if (leftRet.value <= rightRet.value) {
+                        isSeuccess = "成功";
+                    }
+                    break;
+                case "<":
+                    if (leftRet.value < rightRet.value) {
+                        isSeuccess = "成功";
+                    }
+                    break;
+                case ">=":
+                    if (leftRet.value >= rightRet.value) {
+                        isSeuccess = "成功";
+                    }
+                    break;
+                case ">":
+                    if (leftRet.value > rightRet.value) {
+                        isSeuccess = "成功";
+                    }
+                    break;
+                case "=":
+                case "==":
+                    if (leftRet.value === rightRet.value) {
+                        isSeuccess = "成功";
+                    }
+                    break;
+                default:
+                    break;
+            }
+            return leftRet.replyStr + splitedDice[1] + rightRet.replyStr + "→" + isSeuccess;
+
+        } else if (splitedDice.length == 1) {
+            let result = evaluate(parse(diceSet));
+            return result.replyStr + " = " + result.value.toString();
+
+        }
+    };
+
     let rollBasicDice = function (commandStr) {
         // Get the first part of command
         let firstPart = commandStr.match(/\S+/)[0];
-
+        console.log(firstPart);
+        console.log("here");
         // filter the fraction
         if (firstPart.match(/\./)!=null){
             return undefined;
         }
 
-        let replyString = ""
+        let replyString = "";
         // check the multiple dice roll or not
         if (firstPart.match(/\D/) == null) {
             // multiple dice roll
@@ -216,18 +352,18 @@ var DiceRoller = function () {
             if (rollingTimes > 20) {
                 return "20次以上的複數擲骰對明日香來說太多了啦。"
             }
-            let diceSet = inputStr.toLowerCase().split(' ',2)[1];
+            let diceSet = commandStr.toLowerCase().split(' ',2)[1];
             
             replyString += "複數擲骰："
-            for (let i = 0; i < rollingTimes; i += 1 ) {
-                replyString = replyString + "\n" + i + "# " + getRollingDiceSetString(diceSet)
+            for (let i = 1; i <= rollingTimes; i += 1 ) {
+                replyString = replyString + "\n" + i + "# " + evaluateDiceSet(diceSet);
             }
         } else {
             //Basic dice roll
-            diceSet = firstPart;
-            replyString += "基本擲骰：" + getRollingDiceSetString(diceSet)
+            let diceSet = firstPart;
+            replyString += "基本擲骰：" + evaluateDiceSet(diceSet);
         }
-
+        return replyString;
     }
 
 
@@ -246,12 +382,11 @@ var DiceRoller = function () {
 
     this.roll = function (command) {
         let commandLowerStr = command = command.toLowerCase();
-
-        if(commandLowerStr.match(/^kan/) != null) return normalDice(commandLowerStr);
-
-
+        let result = rollBasicDice(commandLowerStr)
+        return result
     }
 }
+
 
 
 module.exports = DiceRoller;
