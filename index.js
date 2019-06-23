@@ -42,8 +42,16 @@ function handleEvent(event) {
   console.log(event)
   // create a echoing text message
   let msgStr = event.message.text
+  let reply_text
+  if (msgStr.match(/^隨機/) !== null) {
+    reply_text = selectRandom(msgStr);
+  } else if (msgStr.match(/運勢|運氣/) !== null) {
+    reply_text = testLuck();
+    console.log(reply_text);
+  } else {
+    reply_text = dice.roll(msgStr);
+  }
 
-  let reply_text = dice.roll(event.message.text)
   const echo = { type: 'text', text: reply_text };
   // use reply API
   return client.replyMessage(event.replyToken, echo);
@@ -59,7 +67,7 @@ app.listen(port, () => {
 
 
 function selectRandom(selectStr) {
-    let itemArray = inputStr.split(' ');
+    let itemArray = selectStr.split(' ');
     itemArray.shift();
     if(itemArray.length<2) return undefined;
     let replStr = '[' + itemArray.join(",") + '] → ';
@@ -68,7 +76,8 @@ function selectRandom(selectStr) {
 }
 
 function testLuck() {
-    replyArr =[
+    console.log("in luck");
+    let replyArr = [
       "超幸運的一天，骰子女神眷顧你，骰10個大成功也不是夢呢",
       "大吉，超幸運的，絕對會成功的",
       "中吉，很不錯呢，事情會很順利的",
@@ -84,18 +93,18 @@ function testLuck() {
       "恭喜，這裡是特別獎，可以得到明日香的摸摸頭一次呢(摸摸~摸摸",
     ];
     let randomResult = Math.floor((Math.random()*1000+1));
-    if (dice<=20) return replyArr[0];
-    else if (dice<=90) return replyArr[1];
-    else if (dice<=160) return replyArr[2];
-    else if (dice<=250) return replyArr[3];
-    else if (dice<=363) return replyArr[4];
-    else if (dice<=444) return replyArr[5];
-    else if (dice<=525) return replyArr[6];
-    else if (dice<=600) return replyArr[7];
-    else if (dice<=720) return replyArr[8];
-    else if (dice<=825) return replyArr[9];
-    else if (dice<=929) return replyArr[10];
-    else if (dice<=989) return replyArr[11];
-    else if (dice<=1000) return replyArr[12];
+    if (randomResult<=20) return replyArr[0];
+    else if (randomResult<=90) return replyArr[1];
+    else if (randomResult<=160) return replyArr[2];
+    else if (randomResult<=250) return replyArr[3];
+    else if (randomResult<=363) return replyArr[4];
+    else if (randomResult<=444) return replyArr[5];
+    else if (randomResult<=525) return replyArr[6];
+    else if (randomResult<=600) return replyArr[7];
+    else if (randomResult<=720) return replyArr[8];
+    else if (randomResult<=825) return replyArr[9];
+    else if (randomResult<=929) return replyArr[10];
+    else if (randomResult<=989) return replyArr[11];
+    else if (randomResult<=1000) return replyArr[12];
     else return undefined;
 }

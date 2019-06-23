@@ -85,7 +85,7 @@ function tokenize(code) {
     let tokenRegExp = /\s*([A-Za-z0-9]+|[0-9]+|\S)\s*/g;
     let match;
     while ((match = tokenRegExp.exec(code)) !== null) {
-        results.push(match[1])
+        results.push(match[1]);
     }
     return results;
 }
@@ -277,11 +277,48 @@ function evaluate(obj) {
     }
 }
 
-// try {
-//     console.log(evaluate(parse("(2*5)d8+5")));
-// } catch (e) {
-//     console.log(e)
-// }
+//dice pool
+let rollDicepool = function (commandLowerStr) {
+    let dicePoolRegRxp = /^(\d+)b(\d+)(>=|<=|={1,2}|>|<)?(\d*)/;
+    let poolMatch = dicePoolRegRxp.exec(commandLowerStr);
+    let replyStr = "骰池："
+    let diceNumber = parseInt(poolMatch[1]);
+    let diceType = parseInt(poolMatch[2]);
+    let isCompare = poolMatch[3];
+    let successLevel = parseInt(poolMatch[4]);
+    let dicePool = [];
+    for (let i = 0; i < diceNumber; i += 1) {
+        let diceValue = Math.floor(Math.random() * diceType + 1);
+        dicePool.push(diceValue);
+    }
+    replyStr += "[" + dicePool.join(",") + "]";
+    if (isNaN(successLevel) !== true && isCompare !== undefined) {
+        let successNumber;
+        switch (isCompare) {
+            case ">=":
+                successNumber = dicePool.filter((value) => {return value >= successLevel}).length;
+                break;
+            case "<=":
+                successNumber = dicePool.filter((value) => {return value <= successLevel}).length;
+                break;
+            case ">":
+                successNumber = dicePool.filter((value) => {return value > successLevel}).length;
+                break;
+            case "<":
+                successNumber = dicePool.filter((value) => {return value < successLevel}).length;
+                break;
+            case "=":
+            case "==":
+                successNumber = dicePool.filter((value) => {return value === successLevel}).length;
+                break;
+        }
+        replyStr += " 成功數：" + successNumber.toString();
+    }
+
+    return replyStr;
+};
+
+console.log(rollDicepool("2b7<=7"));
 
 
 var DiceRoller = function () {
@@ -366,24 +403,32 @@ var DiceRoller = function () {
         return replyString;
     }
 
+    // D66
+    let rollD66 = function () {
+        let first = Math.floor(Math.random() * 6 + 1);
+        let second = Math.floor(Math.random() * 6 + 1);
+        return first.toString() + second.toString();
+    };
 
-    let d66 = function(){
-        let first = Math.floor(Math.random() * Math.floor(6));
-        let second = Math.floor(Math.random() * Math.floor(6));
-        return "pass"
-    }
-
+    
     let kancolleRoller = function (commandLowerStr) {
         
-    }
+    };
     
 
-    // For trpg system
-
+    // dice entry
     this.roll = function (command) {
         let commandLowerStr = command = command.toLowerCase();
-        let result = rollBasicDice(commandLowerStr)
-        return result
+        let diceMsg = "";
+        if (commandLowerStr.match(/^d66/) !== null) {
+            diceMsg = rollD66(commandLowerStr);
+        } else if (commandLowerStr.match(/^\d+d\d+/) !== null){
+            
+        } else if (commandLowerStr.match(/\w/) !== null) {
+            diceMsg = rollBasicDice(commandLowerStr);
+        }
+
+        return diceMsg;
     }
 }
 
