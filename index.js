@@ -6,18 +6,12 @@ const express = require('express');
 // custom module
 const diceRoller = require("./dice.js")
 const Asuka = require("./asuka.js")
-// create LINE SDK config from env variables
-// const config = {
-//   channelAccessToken: process.env.CHANNEL_ACCESS_TOKEN,
-//   channelSecret: process.env.CHANNEL_SECRET,
-// };
-const config = {
-  channelId: "1566752695",
-  channelAccessToken: "wGFsJMi13AK4N+DZ7HhSENrk9xHtfxlgzcSjGwr5q9GlKOmkjU7qTXGXHTiKmvSYik9sr7LWDm4cEQumEkCDK0XUtqo0JmEDKD4bQSwYvRT5Bf/5ITV8QniMsRI6FfDZ8mmNtnJyNcUIFCAwPmgQAQdB04t89/1O/w1cDnyilFU=",
-  channelSecret: "ded86aca73026ac94e5b4d582c5ac843",
- };
- 
 
+// create LINE SDK config from env variables
+const config = {
+  channelAccessToken: process.env.CHANNEL_ACCESS_TOKEN,
+  channelSecret: process.env.CHANNEL_SECRET,
+};
 
 // create LINE SDK client
 const client = new line.Client(config);
@@ -64,19 +58,13 @@ function handleEvent(event) {
     event.replyToken,
     texts.map((text) => ({ type: 'text', text }))
   );
-  // use reply API
-  // return client.replyMessage(event.replyToken, test_list);
 }
-
-
-
 
 // listen on port
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`listening on ${port}`);
 });
-
 
 function selectRandom(selectStr) {
     let itemArray = selectStr.split(' ');
