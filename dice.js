@@ -430,13 +430,13 @@ function rollDice(diceStr) {
     if ( diceType === 0) {
         throw "沒有零面骰這種東西啦，笨笨主人。";
     } else if (diceNumber > 200) {
-        throw "笨笨主人2";
+        throw "為什麼西需要骰到200次以上呢，明日香不明白。";
     } else if (diceType > 500) {
-        throw "笨笨主人3";
+        throw "啊勒！？真的需要這麼大的骰子嗎？";
     } else if (diceType === 1 ) {
-        throw "笨笨主人4";
+        throw "1d1=1，不經過嘗試，就不能斷定會失敗。主人加油。";
     } else if (selectNumber > diceNumber) {
-        throw "笨笨主人5";
+        throw "明日香沒辦法憑空變出骰子啦，請把選擇的骰子減少一點好嗎。";
     }
     let result = {
         replyStr: "",

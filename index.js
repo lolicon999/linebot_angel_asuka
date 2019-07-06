@@ -5,17 +5,24 @@ const express = require('express');
 
 // custom module
 const diceRoller = require("./dice.js")
+const Asuka = require("./asuka.js")
 // create LINE SDK config from env variables
 // const config = {
 //   channelAccessToken: process.env.CHANNEL_ACCESS_TOKEN,
 //   channelSecret: process.env.CHANNEL_SECRET,
 // };
+const config = {
+  channelId: "1566752695",
+  channelAccessToken: "wGFsJMi13AK4N+DZ7HhSENrk9xHtfxlgzcSjGwr5q9GlKOmkjU7qTXGXHTiKmvSYik9sr7LWDm4cEQumEkCDK0XUtqo0JmEDKD4bQSwYvRT5Bf/5ITV8QniMsRI6FfDZ8mmNtnJyNcUIFCAwPmgQAQdB04t89/1O/w1cDnyilFU=",
+  channelSecret: "ded86aca73026ac94e5b4d582c5ac843",
+ };
+ 
 
 
 // create LINE SDK client
 const client = new line.Client(config);
 const dice = new diceRoller();
-
+const asuka = new Asuka()
 // create Express app
 // about Express itself: https://expressjs.com/
 const app = express();
@@ -46,16 +53,21 @@ function handleEvent(event) {
   if (msgStr.match(/^隨機/) !== null) {
     reply_text = selectRandom(msgStr);
   } else if (msgStr.match(/運勢|運氣/) !== null) {
-    reply_text = testLuck();
-    console.log(reply_text);
+    reply_text = testLuck();  
+  } else if (msgStr.match(/^明日香/) !== null) {
+    reply_text = asuka.say(msgStr);
   } else {
     reply_text = dice.roll(msgStr);
   }
-
-  const echo = { type: 'text', text: reply_text };
+  let texts = Array.isArray(reply_text) ? reply_text : [reply_text];
+  return client.replyMessage(
+    event.replyToken,
+    texts.map((text) => ({ type: 'text', text }))
+  );
   // use reply API
-  return client.replyMessage(event.replyToken, echo);
+  // return client.replyMessage(event.replyToken, test_list);
 }
+
 
 
 
