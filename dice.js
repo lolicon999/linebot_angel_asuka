@@ -344,7 +344,8 @@ function isNumber(token) {
 }
 
 function isName(token) {
-    return token !== undefined && token.match(/^[A-Za-z]+$/) !== null;
+    return false;
+    // return token !== undefined && token.match(/^[A-Za-z]+$/) !== null;
 }
 
 function isDice(token) {
@@ -566,9 +567,15 @@ var DiceRoller = function () {
             return leftRet.replyStr + splitedDice[1] + rightRet.replyStr + "→" + isSeuccess;
 
         } else if (splitedDice.length == 1) {
-            let result = evaluate(parse(diceSet));
+            let parseRet = parse(diceSet);
+            if (parseRet.type === 'number') {
+                throw SyntaxError("only a number");
+            }
+            let result = evaluate(parseRet);
             return result.replyStr + " = " + result.value.toString();
 
+        } else {
+            throw new SyntaxError("some not valid")
         }
     };
 
@@ -585,10 +592,12 @@ var DiceRoller = function () {
         if (firstPart.match(/\D/) == null) {
             // multiple dice roll
             let rollingTimes = parseInt(firstPart)
+            let diceSet = commandStr.toLowerCase().split(' ',2)[1];
+            evaluateDiceSet(diceSet)
             if (rollingTimes > 20) {
                 return "20次以上的複數擲骰對明日香來說太多了啦。"
             }
-            let diceSet = commandStr.toLowerCase().split(' ',2)[1];
+            
             
             replyString += "複數擲骰："
             for (let i = 1; i <= rollingTimes; i += 1 ) {
@@ -652,11 +661,8 @@ var DiceRoller = function () {
 
     //rollDiceTable
     let rollDiceTable = function (table, tableName, diceType) {
-        console.log("here2");
         let diceNumber = table[tableName].diceNumber;
-        console.log("diceNumber: " + diceNumber.toString());
         let diceValue = evaluate(parse(diceNumber + "d" + diceType)).value;
-        console.log("diceValue: " + diceValue.toString());
         return table[tableName][diceValue];
     } 
 
@@ -671,19 +677,16 @@ var DiceRoller = function () {
         } else if (diceNumber <= 0) {
             throw null;
         }
-        console.log("in");
         let diceResult = [];
         let modifiedResult = [];
         let replyStr = "";
         for (let i = 0; i < diceNumber; i += 1) {
             let diceValue = Math.floor(Math.random() * 10 + 1);
-            console.log(diceValue);
             diceResult.push(diceValue);
             modifiedResult.push(diceValue + modifier);
         }
         replyStr += "["+ diceResult.join(",") + "]" + matchResult[3];
         replyStr += "→[" + modifiedResult.join(",") + "]→";
-        console.log(replyStr);
         if (matchResult[2] === "na") {
             let maxValue =Math.max(...modifiedResult);
             if(maxValue > 10) replyStr += "攻擊大成功，由攻擊方決定命中部位，增加" + (maxValue - 10).toString() + "點傷害。"; 
@@ -715,7 +718,6 @@ var DiceRoller = function () {
         if (kanTable === "help") {
             return kanColleDiceTable["help"];
         }
-        console.log(kanTable);
         return rollDiceTable(kanColleDiceTable, kanTable, 6);
     };
 
